@@ -29,6 +29,27 @@ describe "User pages" do
       it "should not create a user" do
         expect { click_button submit }.not_to change(User, :count)
       end
+
+    	describe "after submission" do
+
+        	shared_examples_for "after submission with invalid information" do
+	        	it {should have_title('Sign up')}
+    	    	it {should have_content('error')}   
+  			end
+  			describe "no fill in" do
+  				before {click_button submit} 
+ 				it_should_behave_like "after submission with invalid information"
+ 			end
+ 			describe "only name fill in" do
+		      	before do
+		        	fill_in "Name",         with: "Example User"
+ 					click_button submit
+ 				end
+ 				it_should_behave_like "after submission with invalid information"
+				it {should_not have_content("Name can't be blank")} 				
+				it {should have_content('Email')} 				
+ 			end
+    	end
     end
 
     describe "signup with valid information" do
@@ -41,6 +62,13 @@ describe "User pages" do
 
       it "should create a user" do
         expect { click_button submit }.to change(User, :count).by(1)
+      end
+
+      describe "after saving the user" do
+      	before {click_button submit}
+      	let(:user) { User.find_by(email: 'user@example.com') }
+      	it {should have_title(user.name)}
+        it { should have_selector('div.alert.alert-success', text: 'Welcome') }
       end
     end
   end
