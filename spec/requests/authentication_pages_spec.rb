@@ -46,6 +46,7 @@ describe "Authentication" do
 		describe "for non-signed-in users" do
 			let(:user) { FactoryGirl.create(:user)}
 
+
 			describe "when attempting to visit a protected page" do
 				before do
 					visit edit_user_path(user)
@@ -58,6 +59,16 @@ describe "Authentication" do
 					it "should reder the disired protected page" do
 						expect(page).to have_title('Edit user')
 					end
+				end
+
+				describe "when signing in again" do
+					before do
+						delete signout_path
+						sign_in(user)
+					end
+					it "should render the default (profile) page" do
+              			expect(page).to have_title(user.name)
+            		end
 				end
 			end
 			describe "in the Users controller" do
