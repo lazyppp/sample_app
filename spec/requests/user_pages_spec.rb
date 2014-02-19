@@ -26,6 +26,17 @@ describe "User pages" do
 
   end
 
+  describe "side bar" do
+    let(:user) { FactoryGirl.create(:user)}
+    let!(:m1) {FactoryGirl.create(:micropost, user: user, content:"Foo")}
+    before do
+      sign_in user    
+      visit root_path
+    end
+    it { should have_content "1 micropost"}
+  end
+
+
    describe "signup page" do
 
     before { visit signup_path }
@@ -142,12 +153,13 @@ describe "User pages" do
     it { should have_content('All users')}
 
     describe "pagination" do
-      before(:all) { 30.times {FactoryGirl.create(user)}}
-      after(:all) { user.delete_all}
-    end
-    it "should list each user" do
-      User.paginate(page: 1).each do |user|
-        expect(page).to have_selector('li', text: user.name)
+      before(:all) { 30.times {FactoryGirl.create(:user)}}
+      after(:all) { User.delete_all}
+      it { should have_selector('div.pagination') }
+      it "should list each user" do
+        User.paginate(page: 1).each do |user|
+          expect(page).to have_selector('li', text: user.name)
+        end
       end
     end
 
