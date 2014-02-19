@@ -24,6 +24,55 @@ describe "User pages" do
     it { should have_content(m2.content)}
     it { should have_content(user.microposts.count)}
 
+
+    describe "pagination" do
+      before do
+        40.times { FactoryGirl.create(:micropost, user: user) }
+        visit user_path(user)
+      end
+      after { Micropost.delete_all }
+      it { should have_selector('div.pagination') }
+      it "should list each micropost" do
+        user.microposts.paginate(page: 1).each do |micropost|
+          expect(page).to have_selector('li', text: micropost.content)
+        end
+      end
+    end
+
+    describe "delete links" do
+      describe "as signed-in user" do
+        before do
+          sign_in user
+          visit user_path(user)
+        end
+        it { should have_link("delete")}
+      end
+
+      describe "as no-signed-in user" do
+      before do
+          visit user_path(user)
+        end
+
+        it { should_not have_link("delete")}
+      end
+      
+      describe "as another user" do
+        before do
+          sign_in FactoryGirl.create(:user)
+          visit user_path(user)
+        end
+        it { should_not have_link("delete")}
+      end
+
+    end
+
+
+      
+
+
+
+
+
   end
 
   describe "side bar" do
